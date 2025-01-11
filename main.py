@@ -16,7 +16,7 @@ class Map:
 
     Methods:
         create_map(): Create a map with the given location, zoom level, and tiles style. Add markers to the map.
-        create_volcanoes_markers(data_csv_file: str): Create a feature group with markers for volcanoes.
+        create_volcanoes_markers(): Create a feature group with markers for volcanoes.
         save(filename: str): Save the map to a file.
     """
 
@@ -34,15 +34,12 @@ class Map:
         self.fallback_tiles = fallback_tiles
         self.data_csv_file = data_csv_file
 
-    def create_map(self, data_csv_file: str) -> folium.Map:
+    def create_map(self) -> folium.Map:
         """
         Create a map with the given location, zoom level, and tiles style. Add markers to the map.
 
-        Args:
-            data_csv_file (str): The path to the CSV file containing the volcano data.
-
         Returns:
-            folium.Map: A map object with the given location, zoom level, tiles style, and markers.
+            folium.Map: A map with markers for volcanoes.
         """
         try:
             map = folium.Map(
@@ -58,15 +55,15 @@ class Map:
                 tiles=self.fallback_tiles,
             )
 
-        # Add markers to the map with create_volcanoes_markers method
-        map.add_child(self.create_volcanoes_markers(data_csv_file))
+        # Add markers to the map
+        map.add_child(self.create_volcanoes_markers())
 
         # Add a layer control to the map
         map.add_child(folium.LayerControl())
 
         return map
 
-    def create_volcanoes_markers(self, data_csv_file: str) -> folium.FeatureGroup:
+    def create_volcanoes_markers(self) -> folium.FeatureGroup:
         """
         Create a feature group with markers for volcanoes.
 
@@ -77,7 +74,7 @@ class Map:
             folium.FeatureGroup: A feature group with markers for volcanoes.
         """
 
-        data = pandas.read_csv(data_csv_file)
+        data = pandas.read_csv(self.data_csv_file)
 
         # FeatureGroup is a container for multiple features
         # TODO: Add a feature group for each type of marker (??)
@@ -109,4 +106,4 @@ class Map:
 
 if __name__ == "__main__":
     map = Map()
-    map.create_map(map.data_csv_file).save("map.html")
+    map.save("map.html")
