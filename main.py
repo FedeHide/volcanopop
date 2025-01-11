@@ -1,5 +1,6 @@
 #!./venv/bin/python
 import folium
+import pandas
 
 
 class Map:
@@ -10,11 +11,12 @@ class Map:
         location (list): The center of the map.
         zoom_start (int): The initial zoom level.
         tiles (str): The style of the map tiles.
-        markers (list): A list of markers to add to the map.
+        fallback_tiles (str): The fallback style of the map tiles.
+        data_csv_file (str): The path to the CSV file containing the volcano data.
 
     Methods:
         create_map(): Create a map with the given location, zoom level, and tiles style. Add markers to the map.
-        create_marker(location: list, popup: str, icon: folium.Icon): Create a marker with the given location, popup, and icon.
+        create_volcanoes_markers(data_csv_file: str): Create a feature group with markers for volcanoes.
         save(filename: str): Save the map to a file.
     """
 
@@ -24,17 +26,20 @@ class Map:
         zoom_start: int = 3,
         tiles: str = "Cartodb Positron",
         fallback_tiles: str = "OpenStreetMap",
-        markers: list = None,
+        data_csv_file: str = "volcanoes.csv",
     ):
         self.location = location if location is not None else [0, 0]
         self.zoom_start = zoom_start
         self.tiles = tiles
         self.fallback_tiles = fallback_tiles
-        self.markers = markers if markers is not None else []
+        self.data_csv_file = data_csv_file
 
-    def create_map(self) -> folium.Map:
+    def create_map(self, data_csv_file: str) -> folium.Map:
         """
         Create a map with the given location, zoom level, and tiles style. Add markers to the map.
+
+        Args:
+            data_csv_file (str): The path to the CSV file containing the volcano data.
 
         Returns:
             folium.Map: A map object with the given location, zoom level, tiles style, and markers.
@@ -53,48 +58,45 @@ class Map:
                 tiles=self.fallback_tiles,
             )
 
-        # FeatureGroup is a container for multiple features
-        # TODO: Add a feature group for each type of marker (??)
-        # TODO: check naming conventions for feature groups
-        markers_fg = folium.FeatureGroup(name="My Map")
-
-        for marker in self.markers:
-            markers_fg.add_child(
-                self.create_marker(
-                    location=marker["location"],
-                    popup=marker["popup"],
-                    icon=marker["icon"],
-                )
-            )
-
-        map.add_child(markers_fg)
+        # Add markers to the map with create_volcanoes_markers method
+        map.add_child(self.create_volcanoes_markers(data_csv_file))
 
         # Add a layer control to the map
         map.add_child(folium.LayerControl())
 
         return map
 
-    def create_marker(
-        self, location: list, popup: str, icon: folium.Icon
-    ) -> folium.Marker:
+    def create_volcanoes_markers(self, data_csv_file: str) -> folium.FeatureGroup:
         """
-        Create a marker with the given location, popup, and icon.
+        Create a feature group with markers for volcanoes.
 
         Args:
-            location (list): The location of the marker.
-            popup (str): The text to display when the marker is clicked.
-            icon (folium.Icon): The icon to use for the marker.
+            data_csv_file (str): The path to the CSV file containing the volcano data.
 
         Returns:
-            folium.Marker: A marker object with the given location, popup, and icon.
+            folium.FeatureGroup: A feature group with markers for volcanoes.
         """
 
-        # Create a marker
-        marker = folium.Marker(location=location, popup=popup, icon=icon)
+        data = pandas.read_csv(data_csv_file)
 
-        return marker
+        # FeatureGroup is a container for multiple features
+        # TODO: Add a feature group for each type of marker (??)
+        # TODO: check naming conventions for feature groups
+        volcanoes_markers_fg = folium.FeatureGroup(name="volcanoes_markers")
 
-    def save(self, filename: str):
+        lat = list(data["LAT"])
+        lon = list(data["LON"])
+
+        for lt, ln in zip(lat, lon):
+            volcanoes_markers_fg.add_child(
+                folium.Marker(
+                    location=[lt, ln], popup="volcano", icon=folium.Icon(color="red")
+                )
+            )
+
+        return volcanoes_markers_fg
+
+    def save(self, filename: str) -> None:
         """
         Save the map to a file.
 
@@ -105,18 +107,6 @@ class Map:
         self.create_map().save(filename)
 
 
-MARKERS = [
-    {
-        "location": [38.2, -99.1],
-        "popup": "green Marker",
-        "icon": folium.Icon(color="green"),
-    },
-    {
-        "location": [37.2, -98.1],
-        "popup": "blue Marker",
-        "icon": folium.Icon(color="blue"),
-    },
-]
-
-map_instance = Map(markers=MARKERS)
-map_instance.save("map.html")
+if __name__ == "__main__":
+    map = Map()
+    map.create_map(map.data_csv_file).save("map.html")
