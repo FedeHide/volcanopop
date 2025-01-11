@@ -1,23 +1,6 @@
 #!./venv/bin/python
 import folium
 
-INITIAL_LOCATION = [0, 0]
-TILES_STYLE = "Cartodb Positron"
-FALLBACK_TILES_STYLE = "OpenStreetMap"
-
-MARKERS = [
-    {
-        "location": [38.2, -99.1],
-        "popup": "green Marker",
-        "icon": folium.Icon(color="green"),
-    },
-    {
-        "location": [37.2, -98.1],
-        "popup": "blue Marker",
-        "icon": folium.Icon(color="blue"),
-    },
-]
-
 
 class Map:
     """
@@ -37,25 +20,21 @@ class Map:
 
     def __init__(
         self,
-        location: list = INITIAL_LOCATION,
+        location: list = None,
         zoom_start: int = 3,
-        tiles: str = TILES_STYLE,
+        tiles: str = "Cartodb Positron",
+        fallback_tiles: str = "OpenStreetMap",
         markers: list = None,
     ):
-        self.location = location
+        self.location = location if location is not None else [0, 0]
         self.zoom_start = zoom_start
         self.tiles = tiles
+        self.fallback_tiles = fallback_tiles
         self.markers = markers if markers is not None else []
 
     def create_map(self) -> folium.Map:
         """
         Create a map with the given location, zoom level, and tiles style. Add markers to the map.
-
-        Args:
-            location (list): The center of the map.
-            zoom_start (int): The initial zoom level.
-            tiles (str): The style of the map tiles.
-            markers (list): A list of markers to add to the map.
 
         Returns:
             folium.Map: A map object with the given location, zoom level, tiles style, and markers.
@@ -64,12 +43,14 @@ class Map:
             map = folium.Map(
                 location=self.location, zoom_start=self.zoom_start, tiles=self.tiles
             )
-        except:
+        except Exception as e:
             print(
-                f"Failed to load {self.tiles} tiles. Loading {FALLBACK_TILES_STYLE} tiles instead."
+                f"Failed to load tiles '{self.tiles}' ({e}) tiles. Using fallback '{self.fallback_tiles}'."
             )
             map = folium.Map(
-                location=INITIAL_LOCATION, zoom_start=3, tiles=FALLBACK_TILES_STYLE
+                location=self.location,
+                zoom_start=self.zoom_start,
+                tiles=self.fallback_tiles,
             )
 
         # FeatureGroup is a container for multiple features
@@ -93,7 +74,9 @@ class Map:
 
         return map
 
-    def create_marker(self, location: list, popup: str, icon: folium.Icon):
+    def create_marker(
+        self, location: list, popup: str, icon: folium.Icon
+    ) -> folium.Marker:
         """
         Create a marker with the given location, popup, and icon.
 
@@ -106,9 +89,9 @@ class Map:
             folium.Marker: A marker object with the given location, popup, and icon.
         """
 
+        # Create a marker
         marker = folium.Marker(location=location, popup=popup, icon=icon)
 
-        # Create a marker
         return marker
 
     def save(self, filename: str):
@@ -122,5 +105,18 @@ class Map:
         self.create_map().save(filename)
 
 
-map = Map(markers=MARKERS)
-map.save("map.html")
+MARKERS = [
+    {
+        "location": [38.2, -99.1],
+        "popup": "green Marker",
+        "icon": folium.Icon(color="green"),
+    },
+    {
+        "location": [37.2, -98.1],
+        "popup": "blue Marker",
+        "icon": folium.Icon(color="blue"),
+    },
+]
+
+map_instance = Map(markers=MARKERS)
+map_instance.save("map.html")
