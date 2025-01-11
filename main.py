@@ -40,12 +40,12 @@ class Map:
         location: list = INITIAL_LOCATION,
         zoom_start: int = 3,
         tiles: str = TILES_STYLE,
-        markers: list = [],
+        markers: list = None,
     ):
         self.location = location
         self.zoom_start = zoom_start
         self.tiles = tiles
-        self.markers = markers
+        self.markers = markers if markers is not None else []
 
     def create_map(self) -> folium.Map:
         """
