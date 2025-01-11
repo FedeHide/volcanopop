@@ -67,58 +67,122 @@ class Map:
         """
         Create a feature group with markers for volcanoes.
 
-        Args:
-            data_csv_file (str): The path to the CSV file containing the volcano data.
-
         Returns:
             folium.FeatureGroup: A feature group with markers for volcanoes.
         """
 
+        # read the data from the CSV file
         data = pandas.read_csv(self.data_csv_file)
 
         # FeatureGroup is a container for multiple features
-        # TODO: Add a feature group for each type of marker (??)
-        # TODO: check naming conventions for feature groups
-        volcanoes_markers_fg = folium.FeatureGroup(name="volcanoes_markers")
+        volcanoes_markers_fg = folium.FeatureGroup(name="Volcanoes")
 
+        # HTML template for the popup
         html_template = """
                         <div class="popup-content">
-                            <p><strong>Name:</strong> {name}</p>
+                            <p><strong>Name:</strong> <a href="https://www.google.com/search?q={query}" target="_blank">{name}</a></p>
                             <p><strong>Elevation:</strong> {elev} mts</p>
                         </div>
                         <style>
+                            body {{
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                                font-family: Arial, sans-serif;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                height: 100vh;
+                            }}
                             .popup-content {{
                                 display: flex;
                                 flex-direction: column;
                                 align-items: center;
                                 justify-content: center;
                                 min-width: 150px;
-                                height: 100%;
+                                gap: 0.5rem;
                             }}
                             .popup-content p {{
                                 margin: 0;
                                 font-size: 0.8rem;
                             }}
+                            .popup-content p a {{
+                                color: #007bff;
+                                text-decoration: none;
+                                position: relative;
+                            }}
+                            .popup-content p a::after {{
+                                content: "";
+                                position: absolute;
+                                left: 0;
+                                bottom: 0;
+                                width: 0;
+                                height: 1px;
+                                background-color: #007bff;
+                                transition: width 0.1s ease;
+                            }}
+                            .popup-content p a:hover::after {{
+                                width: 100%;
+                            }}
                         </style>
                         """
 
+        def format_popup(name: str, elev: float) -> str:
+            """
+            Format the popup content.
+
+            Args:
+                name (str): The name of the volcano.
+                elev (float): The elevation of the volcano.
+
+            Returns:
+                str: The formatted popup content.
+            """
+
+            name = name or "Unknown"
+            elev = f"{int(elev)}" if elev is not None else "N/A"
+            query = f"{name} volcano" if name != "Unknown" else ""
+            return html_template.format(name=name, elev=elev, query=query)
+
+        def get_icon_color_by_elevation(elev: float) -> str:
+            """
+            Get the color of the icon based on the elevation.
+
+            Args:
+                elev (float): The elevation of the volcano.
+
+            Returns:
+                str: The color of the icon.
+            """
+
+            if elev is None:
+                return "gray"
+            elif elev < 1000:
+                return "green"
+            elif elev < 2000:
+                return "orange"
+            else:
+                return "red"
+
         # Add a marker for each volcano
         for row in data.itertuples():
-            name = row.NAME or "Unknown"
-            elev = int(row.ELEV) if row.ELEV is not None else "N/A"
+            popup_html = format_popup(row.NAME, row.ELEV)
 
-            iframe = folium.IFrame(
-                html=html_template.format(name=name, elev=elev),
-                width=180,
-                height=60,
-            )
+            # Create an iframe to embed the HTML content in the popup
+            iframe = folium.IFrame(html=popup_html, width=180, height=80)
+
+            # determine the color of the icon based on the elevation
+            icon_color = get_icon_color_by_elevation(row.ELEV)
+
+            # Add a marker to the feature group
             volcanoes_markers_fg.add_child(
                 folium.Marker(
                     location=[row.LAT, row.LON],
                     popup=folium.Popup(iframe),
-                    icon=folium.Icon(color="red"),
+                    icon=folium.Icon(color=icon_color),
                 )
             )
+
         return volcanoes_markers_fg
 
     def save(self, filename: str) -> None:
