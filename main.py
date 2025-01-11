@@ -22,7 +22,7 @@ class Map:
 
     def __init__(
         self,
-        location: list = None,
+        location: list[float] | None = None,
         zoom_start: int = 3,
         tiles: str = "Cartodb Positron",
         fallback_tiles: str = "OpenStreetMap",
@@ -81,16 +81,44 @@ class Map:
         # TODO: check naming conventions for feature groups
         volcanoes_markers_fg = folium.FeatureGroup(name="volcanoes_markers")
 
-        lat = list(data["LAT"])
-        lon = list(data["LON"])
+        html_template = """
+                        <div class="popup-content">
+                            <p><strong>Name:</strong> {name}</p>
+                            <p><strong>Elevation:</strong> {elev} mts</p>
+                        </div>
+                        <style>
+                            .popup-content {{
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                                min-width: 150px;
+                                height: 100%;
+                            }}
+                            .popup-content p {{
+                                margin: 0;
+                                font-size: 0.8rem;
+                            }}
+                        </style>
+                        """
 
-        for lt, ln in zip(lat, lon):
+        # Add a marker for each volcano
+        for row in data.itertuples():
+            name = row.NAME or "Unknown"
+            elev = int(row.ELEV) if row.ELEV is not None else "N/A"
+
+            iframe = folium.IFrame(
+                html=html_template.format(name=name, elev=elev),
+                width=180,
+                height=60,
+            )
             volcanoes_markers_fg.add_child(
                 folium.Marker(
-                    location=[lt, ln], popup="volcano", icon=folium.Icon(color="red")
+                    location=[row.LAT, row.LON],
+                    popup=folium.Popup(iframe),
+                    icon=folium.Icon(color="red"),
                 )
             )
-
         return volcanoes_markers_fg
 
     def save(self, filename: str) -> None:
