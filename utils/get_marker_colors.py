@@ -1,20 +1,32 @@
 #!./venv/bin/python
-def get_marker_color_by_elevation(elev: float) -> str:
+import folium
+
+
+def get_marker_color_by_elevation(elevation: float) -> folium.CustomIcon:
     """
     Get the color of the icon based on the elevation.
 
     Args:
-        elev (float): The elevation of the volcano.
+        elevation (float): The elevation of the volcano.
 
     Returns:
-        str: The color of the icon.
+        folium.CustomIcon: A Folium CustomIcon object with the appropriate image.
     """
 
-    if elev is None:
-        return "gray"
-    elif elev < 1000:
-        return "green"
-    elif elev < 2000:
-        return "orange"
+    if elevation is None:
+        icon_image = "assets/icons/gray-volcano.png"
+    elif elevation < 1000:
+        icon_image = "assets/icons/green-volcano.png"
+    elif elevation < 2000:
+        icon_image = "assets/icons/orange-volcano.png"
     else:
-        return "red"
+        icon_image = "assets/icons/red-volcano.png"
+
+    icon = folium.CustomIcon(
+        icon_image,
+        icon_size=(30, 30),
+        icon_anchor=(15, 15),
+        popup_anchor=(0, -10),
+    )
+
+    return icon

@@ -87,14 +87,14 @@ class Map:
             iframe = folium.IFrame(html=popup_html, width=180, height=80)
 
             # determine the color of the icon based on the elevation
-            icon_color = get_marker_color_by_elevation(row.ELEV)
+            icon = get_marker_color_by_elevation(row.ELEV)
 
             # Add a marker to the feature group
             volcanoes_markers_fg.add_child(
                 folium.Marker(
                     location=[row.LAT, row.LON],
                     popup=folium.Popup(iframe),
-                    icon=folium.Icon(color=icon_color),
+                    icon=icon,
                 )
             )
 
@@ -107,5 +107,4 @@ class Map:
         Args:
             filename (str): The name of the file to save the map to.
         """
-
         self.create_map().save(filename)

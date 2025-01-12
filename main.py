@@ -1,5 +1,5 @@
 #!./venv/bin/python
-from map import Map
+from models.map import Map
 
 
 if __name__ == "__main__":
