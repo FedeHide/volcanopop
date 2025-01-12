@@ -14,11 +14,13 @@ class Map:
         zoom_start (int): The initial zoom level.
         tiles (str): The style of the map tiles.
         fallback_tiles (str): The fallback style of the map tiles.
-        data_csv_file (str): The path to the CSV file containing the volcano data.
+        volcanoes_data_csv_file (str): The path to the CSV file containing the volcano data.
+        countries_geodata_json_file (str): The path to the JSON file containing the countries geodata.
 
     Methods:
         create_map(): Create a map with the given location, zoom level, and tiles style. Add markers to the map.
         create_volcanoes_markers(): Create a feature group with markers for volcanoes.
+        create_countries_geodata(): Create a feature group with geodata for countries.
         save(filename: str): Save the map to a file.
     """
 
@@ -28,13 +30,15 @@ class Map:
         zoom_start: int = 3,
         tiles: str = "Cartodb Positron",
         fallback_tiles: str = "OpenStreetMap",
-        data_csv_file: str = "data/volcanoes.csv",
+        volcanoes_data_csv_file: str = "data/volcanoes-data.csv",
+        countries_geodata_json_file: str = "data/countries-geodata.json",
     ):
         self.location = location if location is not None else [0, 0]
         self.zoom_start = zoom_start
         self.tiles = tiles
         self.fallback_tiles = fallback_tiles
-        self.data_csv_file = data_csv_file
+        self.volcanoes_data_csv_file = volcanoes_data_csv_file
+        self.countries_geodata_json_file = countries_geodata_json_file
 
     def create_map(self) -> folium.Map:
         """
@@ -57,8 +61,11 @@ class Map:
                 tiles=self.fallback_tiles,
             )
 
-        # Add markers to the map
+        # Add volcanoes markers to the map
         map.add_child(self.create_volcanoes_markers())
+
+        # Add geodata to the map
+        map.add_child(self.create_countries_geodata())
 
         # Add a layer control to the map
         map.add_child(folium.LayerControl())
@@ -74,9 +81,10 @@ class Map:
         """
 
         # read the data from the CSV file
-        data = pandas.read_csv(self.data_csv_file)
+        data = pandas.read_csv(self.volcanoes_data_csv_file)
 
         # FeatureGroup is a container for multiple features
+        # Create a fg for the markers
         volcanoes_markers_fg = folium.FeatureGroup(name="Volcanoes")
 
         # Add a marker for each volcano
@@ -99,6 +107,39 @@ class Map:
             )
 
         return volcanoes_markers_fg
+
+    def create_countries_geodata(self) -> folium.FeatureGroup:
+        """
+        Create a feature group with geodata for countries.
+
+        Returns:
+            folium.FeatureGroup: A feature group with geodata for countries.
+        """
+
+        # Create a fg for the countries geodata
+        countries_geodata_fg = folium.FeatureGroup(name="Population")
+
+        # Add the countries geodata to the feature group
+        countries_geodata_fg.add_child(
+            folium.GeoJson(
+                data=open(
+                    self.countries_geodata_json_file, "r", encoding="utf-8-sig"
+                ).read(),
+                style_function=lambda x: {
+                    "fillColor": (
+                        "green"
+                        if x["properties"]["POP2005"] < 10000000
+                        else (
+                            "orange"
+                            if 10000000 <= x["properties"]["POP2005"] < 20000000
+                            else "red"
+                        )
+                    )
+                },
+            )
+        )
+
+        return countries_geodata_fg
 
     def save(self, filename: str) -> None:
         """
