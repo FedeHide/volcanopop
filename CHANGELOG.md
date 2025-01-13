@@ -1,17 +1,29 @@
 # Changelog
 
-## [v0.1.0](https://github.com/FedeHide/shellsage/releases/tag/v0.1.0) (2024-12-24)
+## [v0.1.0](https://github.com/FedeHide/volcanopop/releases/tag/v0.1.0) (2025-01-12)
 
 ### Features
 
-* **feat:** add first version script ([58e4db0](https://github.com/FedeHide/shellsage/commit/58e4db0cb244128cfb1a26a41166537d9dadf038))
+* **feat:** add method for population-based layer in Map class using json geodata ([a61c8fe](https://github.com/FedeHide/volcanopop/commit/a61c8febe50dc41ea130d718b8a70ae08b9b50f2))
 
-* **feat:** add test script for testing without api tokens ([27be269](https://github.com/FedeHide/shellsage/commit/27be269d6b98833f00b31a371327bc22e8de11b5))
+* **feat:** change icon marker to a volcano custon icon ([8e2fe48](https://github.com/FedeHide/volcanopop/commit/8e2fe481add85c8238d57a253429c99839874022))
 
-* **feat:** add configuration file ([b5b9ab2](https://github.com/FedeHide/shellsage/commit/b5b9ab2e8746692b3dbf614db21d3a2a1efbc77a))
+* **feat:** add methods to format popup and change color of marker by volcano elevation, improve html template ([0552ae2](https://github.com/FedeHide/volcanopop/commit/0552ae2dd73ec817b955a5af41a36d0b0c9f2d18))
 
-* **build:** add dependencies requirements files ([18b2c5d](https://github.com/FedeHide/shellsage/commit/18b2c5d4f18740b348bde1d6cbbca235c4c76725))
+* **feat:** add dynamic volcano marker generation from CSV file with pandas ([67e7ede](https://github.com/FedeHide/volcanopop/commit/67e7ede4e592159c9fc970ea3d05921cd2bad8a2))
 
-* **feat:** add project screenshot, for README ([57cc169](https://github.com/FedeHide/shellsage/commit/57cc1691db751a76c9d0769b024959955dad4924))
+### Fix
 
-* **feat:** add readme and gitignore ([d06dfb3](https://github.com/FedeHide/shellsage/commit/d06dfb3516678fe9d25fca20eedbe05471f86922))
+* **hotfix:** avoid mutable default arguments in Map class constructor ([c06257a](https://github.com/FedeHide/volcanopop/commit/c06257ac8a57376b33f7444f4051dd8deae764d3))
+
+* **hotfix:** move FeatureGroup creation to create_map method due to overcreation of fg in create_marker method ([c40ca5a](https://github.com/FedeHide/volcanopop/commit/c40ca5ac81b9f72bfb3eb016c6d548461c212614))
+
+### Other Changes
+
+* **refactor:** split functionality into separate files, improve project structure ([0a2208d](https://github.com/FedeHide/volcanopop/commit/0a2208de43296f9d1c5bbfb80cd847319131a3c1))
+
+* **refactor:** use instance attribute data_csv_file directly, removing redundant parameter in create_map method ([22761b1](https://github.com/FedeHide/volcanopop/commit/22761b1c8e0574f767aefac75ef12777bea8ac2b))
+
+* **refactor:** optimize data iteration with intertuples and improve popup with an html template ([d574192](https://github.com/FedeHide/volcanopop/commit/d5741923b7f392cbb062e1992754039c5a55b3b7))
+
+* **refactor:** improve Map class design by avoiding mutable defaults, simplifying marker creation and enhancing reusability ([2c3be1e](https://github.com/FedeHide/volcanopop/commit/2c3be1e494eb1a002c868f6f0430d82e3ed68b44))
