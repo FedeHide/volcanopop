@@ -50,19 +50,19 @@ html_template = """
                 """
 
 
-def format_popup(name: str, elev: float) -> str:
+def format_popup(name: str, elev: int) -> str:
     """
     Format the popup content.
 
     Args:
         name (str): The name of the volcano.
-        elev (float): The elevation of the volcano.
+        elev (int): The elevation of the volcano.
 
     Returns:
         str: The formatted popup content.
     """
 
     name = name or "Unknown"
-    elev = f"{int(elev)}" if elev is not None else "N/A"
+    elev = f"{elev}" if elev is not None else "N/A"
     query = f"{name} volcano" if name != "Unknown" else ""
     return html_template.format(name=name, elev=elev, query=query)
