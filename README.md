@@ -11,7 +11,7 @@ This application visualizes active volcanoes around the world on a map, categori
 
 ------------
 
-<!-- ![shellsage-screenshot.webp](/public/shellsage-screenshot.webp) --> CHANGE
+![volcanopop-screenshot.webp](/public/volcanopop-screenshot.webp) 
 
 
 ## Features
